@@ -35,14 +35,13 @@
 //
 
 // Firmware Version, e.g. X.YY
-#define FIRMWARE_VERSION_FLOAT  1.04    // 2 decimal places
+#define FIRMWARE_VERSION_FLOAT  1.05    // 2 decimal places
 
 // Number of PPM channels out. 1 - 12 channels supported. 
 #define NUMBER_OF_CHANNELS 8
 
 // Define for extra debug serial info
 #define DEBUG 0
-//#define DEBUG_PPM
 
 // Output serial data to host evern X frames
 #define SERIAL_OUTPUT_FRAME_INTERVAL    10
@@ -66,7 +65,7 @@
 #define ALWAYS_CAL_GYRO 0
 
 // Center/pause input button pin number
-#define BUTTON_INPUT 10
+#define BUTTON_INPUT 11
 
 // Arduino LED
 #define  ARDUINO_LED 13

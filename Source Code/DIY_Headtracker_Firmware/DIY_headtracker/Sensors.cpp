@@ -2,11 +2,11 @@
 // File: Sensors.cpp
 // Desc: Implementations sensor board functionality.
 //-----------------------------------------------------------------------------
-#include "config.h"
+#include "Config.h"
 #include "Arduino.h"
-#include "functions.h"
+#include "Functions.h"
 #include <Wire.h>
-float panAngleTemp;
+
 /*
 Reference for basic sensor/IMU understanding/calculation:
 http://www.starlino.com/imu_guide.html
@@ -108,18 +108,18 @@ float tiltRollBeta = 0.75;
 float panBeta = 0.75;
 float gyroWeightTiltRoll = 0.98;
 float GyroWeightPan = 0.98;
-int servoPanCenter = 1500;
-int servoTiltCenter = 1500;
-int servoRollCenter = 1500;
-int panMaxPulse = 1900;
-int panMinPulse = 1100;
-int tiltMaxPulse = 1900;
-int tiltMinPulse = 1100;
-int rollMaxPulse = 1900;
-int rollMinPulse = 1100;
-float panFactor = 25;
-float tiltFactor = 25;
-float rollFactor = 25;
+int servoPanCenter = 2100;
+int servoTiltCenter = 2100;
+int servoRollCenter = 2100;
+int panMaxPulse = 1150;
+int panMinPulse = 1150;
+int tiltMaxPulse = 1150;
+int tiltMinPulse = 1150;
+int rollMaxPulse = 1150;
+int rollMinPulse = 1150;
+float panFactor = 17;
+float tiltFactor = 17;
+float rollFactor = 17;
 unsigned char servoReverseMask = 0;
 int accOffset[3] = {0, 0, 0}; 
 float magOffset[3] = {(MAG0MAX + MAG0MIN) / 2, (MAG1MAX + MAG1MIN) / 2, (MAG2MAX + MAG2MIN) / 2};
@@ -431,7 +431,7 @@ void MagCalc()
 //--------------------------------------------------------------------------------------
 void FilterSensorData()
 {
-    signed int temp = 0;
+    int temp = 0;
 
     // Used to set initial values. 
     if (resetValues == 1)
@@ -477,34 +477,24 @@ void FilterSensorData()
         panAngleLP = panAngle * panBeta + (1 - panBeta) * lastPanAngle;
         lastPanAngle = panAngleLP;
 
-         panAngleTemp = panAngleLP * panInverse * panFactor;
-/* 		temp=constrain((servoPanCenter+panAngleTemp),panMinPulse,panMaxPulse);
-		channel_value[htChannels[0]]=(int)temp;
-		 */
-		 
-		 temp = servoPanCenter + (int)panAngleTemp;
-         if ( (temp > panMinPulse) && (temp < panMaxPulse) )
+        float panAngleTemp = panAngleLP * panInverse * panFactor;
+        if ( (panAngleTemp > -panMinPulse) && (panAngleTemp < panMaxPulse) )
         {
-            channel_value[htChannels[0]] = temp;
+            temp = servoPanCenter + panAngleTemp;
+            channel_value[htChannels[0]] = (int)temp;
         }    
 
         float tiltAngleTemp = (tiltAngleLP - tiltStart) * tiltInverse * tiltFactor;
-		//temp=constrain((servoTiltCenter+tiltAngleTemp),tiltMinPulse,tiltMaxPulse);
-		//channel_value[htChannels[1]]=(int)temp;
-		
-		temp = servoTiltCenter + (int)tiltAngleTemp;
-         if ( (temp > tiltMinPulse) && (temp < tiltMaxPulse) )
+        if ( (tiltAngleTemp > -tiltMinPulse) && (tiltAngleTemp < tiltMaxPulse) )
         {
+            temp = servoTiltCenter + tiltAngleTemp;
             channel_value[htChannels[1]] = temp;
-        }
-		
+        }   
+
         float rollAngleTemp = (rollAngleLP - rollStart) * rollInverse * rollFactor;
-		//temp=constrain((servoRollCenter+rollAngleTemp),rollMinPulse,rollMaxPulse);
-		//channel_value[htChannels[2]]=(int)temp;
-		
-		temp = servoRollCenter + (int)rollAngleTemp;
-		if ( (temp > rollMinPulse) && (temp < rollMaxPulse) )
+        if ( (rollAngleTemp > -rollMinPulse) && (rollAngleTemp < rollMaxPulse) )
         {
+            temp = servoRollCenter + rollAngleTemp;
             channel_value[htChannels[2]] = temp;
         }
     }

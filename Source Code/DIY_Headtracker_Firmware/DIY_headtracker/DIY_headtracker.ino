@@ -13,9 +13,9 @@
 //-----------------------------------------------------------------------------
 
 #include <Wire.h>
-#include "config.h"
-#include "functions.h"
-#include "sensors.h"
+#include "Config.h"
+#include "Functions.h"
+#include "Sensors.h"
 #include <EEPROM.h>
 
 /*
@@ -683,14 +683,6 @@ void loop()
                 calAccOutput();
             }
             frameNumber = 0; 
-			
-			#if defined(DEBUG_PPM)
-			extern long channel_value[];
-			extern float panAngleTemp;
-			Serial.print(channel_value[8]);
-				Serial.print("\t");
-				Serial.println(panAngleTemp);
-			#endif
         }
 
         // Will first update read_sensors when everything is done.  

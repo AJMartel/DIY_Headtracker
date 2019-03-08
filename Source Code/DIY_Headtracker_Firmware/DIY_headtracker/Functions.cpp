@@ -2,10 +2,10 @@
 // File: Functions.cpp
 // Desc: Implementations of PPM-related functions for the project.
 //-----------------------------------------------------------------------------
-#include "config.h"
+#include "Config.h"
 #include "Arduino.h"
-#include "functions.h"
-#include "sensors.h"
+#include "Functions.h"
+#include "Sensors.h"
 #include <Wire.h>
 
 extern long channel_value[];
@@ -30,7 +30,7 @@ int gyro_raw[3] = {4,5,6};
 int mag_raw[3]  = {7,8,9};
 
 unsigned char PpmIn_PpmOut[13] = {0,1,2,3,4,5,6,7,8,9,10,11,12};
-long channel_value[13] = {1500,1500,1500,1500,1500,1500,1500,1500,1500,1500,1500,1500,1500};
+long channel_value[13] = {2100,2100,2100,2100,2100,2100,2100,2100,2100,2100,2100,2100,2100};
 
 unsigned char channel_number = 1;
 char shift = 0;
@@ -183,7 +183,7 @@ ISR(TIMER1_COMPA_vect)
             }
             else
             {
-                OCR1A += ((channel_value[(channel_number + 1) / 2]<<1)-DEAD_TIME);
+                OCR1A += channel_value[(channel_number + 1) / 2];
             }
             channel_number++;
         }
@@ -241,12 +241,10 @@ ISR(TIMER0_COMPA_vect)
 // Func: DetectPPM
 // Desc: 
 //--------------------------------------------------------------------------------------
-
-#define PPM_SYNC_WIDTH 3200
 void DetectPPM()
 {  
     // If a new frame is detected
-    if (pulseTime > PPM_SYNC_WIDTH)
+    if (pulseTime > 5500)
     {
         // Save total channels detected
         channelsDetected = channel; 
@@ -261,8 +259,8 @@ void DetectPPM()
              (channel + 1) != htChannels[1] &&
              (channel + 1) != htChannels[2] )
         {
-            channelValues[channel++] = pulseTime>>1;
-            channel_value[PpmIn_PpmOut[channel]] = pulseTime>>1;
+            channelValues[channel++] = pulseTime;
+            channel_value[PpmIn_PpmOut[channel]] = pulseTime;
         }
     }  
     else if (pulseTime > PPM_IN_MIN)
@@ -282,15 +280,15 @@ ISR(TIMER1_CAPT_vect)
     // or just weird behavior:
     TIMSK1 &= ~(1 << ICIE1);
     
-    //state = TCCR1B & (1 << ICES1);
+    state = TCCR1B & (1 << ICES1);
     
     // Toggle interrupt to detect falling/rising edge:
-    //TCCR1B ^= (1<<ICES1);
+    TCCR1B ^= (1<<ICES1);
     
     // Read the time-value stored in ICR1 register (will be the time copied from TCNT1 at input-capture event). 
-   // timeRead   
+    timeRead = ICR1;    
     
-    pulseTime = timeRead = ICR1;  ; 
+    pulseTime = timeRead; 
     
     // Check if the timer have reached top/started over:
     if (lastTime > pulseTime)

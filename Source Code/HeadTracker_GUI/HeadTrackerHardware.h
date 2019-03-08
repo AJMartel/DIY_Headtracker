@@ -69,6 +69,7 @@ public: // methods
         Port->PortName = ComPort;
         Port->BaudRate = 57600;
         Port->ReadTimeout = 2000;
+        Port->DtrEnable = true;
         try
         {
             Port->Open();
